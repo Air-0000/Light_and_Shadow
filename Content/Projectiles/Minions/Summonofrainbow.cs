@@ -150,7 +150,7 @@ namespace Calamity_Overhaul_Patch.Content.Projectiles.Minions
                     Projectile.frame = 0;
             }
         }
-    }
+    
 
         
 
@@ -158,8 +158,6 @@ namespace Calamity_Overhaul_Patch.Content.Projectiles.Minions
         {
             Main.projFrames[Projectile.type] = 4; // 火焰小鬼是4帧动画
         }
-
-
 
     }
 }
