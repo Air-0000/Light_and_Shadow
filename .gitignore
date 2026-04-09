@@ -1,27 +1,24 @@
-# ==========================================
-# 通用 Git 忽略
-# ==========================================
+# 通用垃圾文件
 .DS_Store
-.Thumbs.db
+*.pyc
+__pycache__/
 *.log
-*.tmp
-*.temp
+tmp/
+temp/
+
+# 游戏 / tModLoader 相关
+dotnet/
+dotnet_arm64/
+src/
+bin/
+obj/
+*.dll
+*.exe
+*.dylib
+*.so
+
+# 编辑器
 .idea/
 .vscode/
 *.swp
-*.bak
-
-# ==========================================
-# tModLoader 模组专用忽略
-# ==========================================
-/bin/
-/obj/
-/Bin/
-/Obj/
-/build/
-/dist/
-
-
-# 本地配置、保存、缓存
-.csharpierrc
-.vs/
+*.swo
