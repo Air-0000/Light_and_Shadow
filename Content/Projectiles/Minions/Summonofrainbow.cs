@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using static Calamity_OverHaul_Patch.Content.Items.GameStageHelper;
 
@@ -106,7 +107,7 @@ namespace Calamity_Overhaul_Patch.Content.Projectiles.Minions
                         Projectile.GetSource_FromAI(),
                         Projectile.Center,
                         vel,
-                        207,         // 火焰小鬼火球
+                        ProjectileID.ChlorophyteBullet,         // 火焰小鬼火球
                         Projectile.damage,
                         Projectile.knockBack,
                         player.whoAmI
