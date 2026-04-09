@@ -40,6 +40,7 @@ namespace Calamity_OverHaul_Patch.Content.Items
         public override void AddRecipes()
         {
             CreateRecipe()
+                .AddTile(ModContent.TileType<Tiles.ShadowAnvil>())
                 .AddIngredient(ModContent.ItemType<RainbowCrystal>(), 1)
                 .AddIngredient(ItemID.Amber, 5)
                 .AddIngredient(ItemID.Ruby, 5)
@@ -47,11 +48,8 @@ namespace Calamity_OverHaul_Patch.Content.Items
                 .AddIngredient(ItemID.Amethyst, 5)
                 .AddIngredient(ItemID.Sapphire, 5)
                 .AddIngredient(ItemID.Emerald, 5)
-                .AddTile(ModContent.TileType<Tiles.ShadowAnvil>()) 
                 .Register();
         }
-
-
         /// <summary>
         /// 当玩家手持这个物品时，持续调用
         /// </summary>
@@ -77,7 +75,7 @@ namespace Calamity_OverHaul_Patch.Content.Items
                         player.GetSource_ItemUse(Item),  // 来源：物品使用（正确不报错）
                         player.Center,                   // 生成位置：玩家中心
                         Vector2.Zero,                    // 移动速度：静止生成
-                        ModContent.ProjectileType<Summonofrainbow>(), // 召唤物实体
+                        ModContent.ProjectileType<RainbowSummon>(), // 召唤物实体
                         Item.damage,                    // 伤害
                         Item.knockBack,                 // 击退
                         player.whoAmI                   // 归属玩家

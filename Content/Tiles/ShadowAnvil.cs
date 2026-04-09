@@ -13,30 +13,30 @@ namespace Calamity_OverHaul_Patch.Content.Tiles
     {
         public override void SetStaticDefaults()
         {
-
             // 基础属性
             Main.tileSolid[Type] = true;
+            Main.tileSolidTop[Type] = true;
+
             Main.tileBlockLight[Type] = true;
-            Main.tileLighted[Type] = false; // 如果不发光就设为 false
-            TileID.Sets.IgnoredByNpcStepUp[Type] = true; // NPC不会试图跳上这个家具
+            Main.tileLighted[Type] = false;
+            TileID.Sets.IgnoredByNpcStepUp[Type] = true;
 
             // 本地化名称
             AddMapEntry(new Color(100, 50, 150), CreateMapEntryName());
 
-            // 定义物体结构 (1x1 大小)
-            Main.tileFrameImportant[Type] = true;//方块为多格
+            // 2x1 结构
+            Main.tileFrameImportant[Type] = true;
             TileObjectData.newTile.CopyFrom(TileObjectData.Style2x1);
             TileObjectData.newTile.Origin = new Point16(0, 0);
-            TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, 2, 0);//平台或固体上放置,2格
+            TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, 2, 0);
             TileObjectData.addTile(Type);
 
-            // 注册为制作站 
+            // 合成站
             AdjTiles = new int[] { TileID.Anvils };
-            
-            Main.tileFrameImportant[Type] = true;
 
+            // ✅ 唯一正确防锤（官方存在）
+            TileID.Sets.PreventsTileHammeringIfOnTopOfIt[Type] = true;
         }
-
         // 发光效果
         public override void NearbyEffects(int i, int j, bool closer)
         {
