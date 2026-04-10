@@ -170,9 +170,6 @@ namespace Calamity_Overhaul_Patch.common.Systems
             if (platformY == 0)
                 platformY = startY + 25;
 
-            // ==============================================
-            // ✅【终极保险】石碑下面 3×3 强制铺 土块/石块
-            // ==============================================
             for (int x = -2; x <= 2; x++)
             {
                 for (int y = 0; y <= 2; y++)
@@ -188,9 +185,6 @@ namespace Calamity_Overhaul_Patch.common.Systems
                 }
             }
 
-            // ==============================================
-            // 清空石碑 2×3 区域
-            // ==============================================
             for (int x = -1; x <= 0; x++)
             {
                 for (int y = -2; y <= 0; y++)
@@ -205,9 +199,6 @@ namespace Calamity_Overhaul_Patch.common.Systems
                 }
             }
 
-            // ==============================================
-            // 向上随机洞口
-            // ==============================================
             for (int y = platformY - 2; y > (int)GenVars.worldSurface - 15; y--)
             {
                 WorldGen.KillTile(centerX, y, false, false, true);
@@ -224,10 +215,6 @@ namespace Calamity_Overhaul_Patch.common.Systems
                     WorldGen.KillWall(centerX + 1, y, false);
                 }
             }
-
-            // ==============================================
-            // ✅ 强制放置石碑（100% 成功）
-            // ==============================================
             WorldGen.PlaceObject(centerX, platformY, ModContent.TileType<Calamity_OverHaul_Patch.Content.Tiles.MysteriousStoneStele>(), true);
         }
 
