@@ -7,6 +7,7 @@ using Terraria.GameContent.ObjectInteractions;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
+using System.Collections.Generic;
 
 namespace Calamity_OverHaul_Patch.Content.Tiles 
 { 
@@ -17,7 +18,6 @@ namespace Calamity_OverHaul_Patch.Content.Tiles
         {
 
             // 1. 基础方块属性（可挖、不透明、不挡光、可 smart 交互）
-            Main.tileSolid[Type] = true;
             Main.tileSolidTop[Type] = false; // 顶部不是实心（可站）
             Main.tileBlockLight[Type] = false; // 不挡光
             Main.tileNoSunLight[Type] = false;
@@ -42,7 +42,7 @@ namespace Calamity_OverHaul_Patch.Content.Tiles
             TileObjectData.newTile.StyleWrapLimit = 1;
             TileObjectData.newTile.LavaDeath = false;
             TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, TileObjectData.newTile.Width, 0); // 底部必须贴实心方块
-            TileObjectData.newTile.AnchorInvalidTiles = new int[] { TileID.Torches }; // 不能放火把上
+            // TileObjectData.newTile.AnchorInvalidTiles = new int[] { 19, 427, 435, 436, 437, 438, 439 }; // 不能放平台上
 
 
             // 注册结构到游戏
@@ -54,16 +54,10 @@ namespace Calamity_OverHaul_Patch.Content.Tiles
             //AdjTiles = new int[] { TileID.Statues }; // (会覆盖掉落!!)归类为雕像
         }
 
-        public override void KillMultiTile(int i, int j, int frameX, int frameY)
+        public override IEnumerable<Item> GetItemDrops(int i, int j)
         {
-            Item.NewItem(
-                new EntitySource_TileBreak(i, j),  // 掉落来源（必须写，防报错）
-                i * 16,                            // X 坐标
-                j * 16,                            // Y 坐标
-                32,                                // 宽度
-                48,                                // 高度
-                ModContent.ItemType<Content.Items.RainbowCrystal>()  // 你要掉的物品
-            );
+            // 直接返回要掉落的物品，支持多物品、概率掉落
+            yield return new Item(ModContent.ItemType<Items.RainbowCrystal>());
         }
 
         // 可选：自定义放置条件（比如只能放实心地面、不能重叠）

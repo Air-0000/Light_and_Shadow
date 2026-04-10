@@ -26,7 +26,7 @@ namespace Calamity_OverHaul_Patch.Content.Tiles
             TileObjectData.newTile.StyleHorizontal = true;
             TileObjectData.addTile(Type);
 
-
+            AddMapEntry(new Color(200, 180, 160), CreateMapEntryName()); 
             // 挖掘硬度
             //MinPick = 40; // 金镐以上能挖
         }
