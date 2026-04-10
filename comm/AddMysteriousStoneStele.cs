@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 using Terraria.WorldBuilding;
 using Terraria.GameContent.Biomes;
 
-namespace Calamity_Overhaul_Patch.common.Systems
+namespace Light_and_Shadow.common.Systems
 {
     public class LivingTreeSteleGenerator : ModSystem
     {
@@ -215,7 +215,7 @@ namespace Calamity_Overhaul_Patch.common.Systems
                     WorldGen.KillWall(centerX + 1, y, false);
                 }
             }
-            WorldGen.PlaceObject(centerX, platformY, ModContent.TileType<Calamity_OverHaul_Patch.Content.Tiles.MysteriousStoneStele>(), true);
+            WorldGen.PlaceObject(centerX, platformY, ModContent.TileType<Content.Tiles.MysteriousStoneStele>(), true);
         }
 
 

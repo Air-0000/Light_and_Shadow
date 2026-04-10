@@ -2,7 +2,7 @@
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Calamity_OverHaul_Patch.Content.Items
+namespace Light_and_Shadow.Content.Items
 {
     public class ShadowAnvil : ModItem
     {

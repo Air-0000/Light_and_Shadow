@@ -1,0 +1,44 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Items: {
+	CalamitySword: {
+		DisplayName: Calamity Sword
+		Tooltip:
+			'''
+			Template of an item
+			Replacing this tooltip is duty 
+			It's snowing on Mt.Fuji
+			'''
+	}
+
+	ShadowRainbowWhip: {
+		DisplayName: Shadow Rainbow Whip
+		Tooltip: ""
+	}
+
+	RainbowCrystal: {
+		DisplayName: Rainbow Crystal
+		Tooltip: ""
+	}
+
+	ShadowAnvil: {
+		DisplayName: Shadow Anvil
+		Tooltip: ""
+	}
+
+	MysteriousStoneStele: {
+		DisplayName: Mysterious Stone Stele
+		Tooltip: ""
+	}
+}
+
+DamageClasses.WhipDamage.DisplayName: Whip Damage
+
+Tiles: {
+	RainbowCrystal.MapEntry: Rainbow Crystal
+	MysteriousStoneStele.MapEntry: Mysterious Stone Stele
+	ShadowAnvil.MapEntry: Shadow Anvil
+	RainbowCrystalTile.MapEntry: Rainbow Crystal Tile
+}
+
+Projectiles.RainbowSummon.DisplayName: RainbowSummon

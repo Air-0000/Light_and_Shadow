@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace Calamity_OverHaul_Patch.Content.Tiles
+namespace Light_and_Shadow.Content.Tiles
 {
     public class RainbowCrystalTile : ModTile
     {

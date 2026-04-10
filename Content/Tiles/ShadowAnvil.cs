@@ -7,7 +7,7 @@ using Terraria.DataStructures;
 using Terraria.ObjectData;
 using Terraria.Enums;
 
-namespace Calamity_OverHaul_Patch.Content.Tiles
+namespace Light_and_Shadow.Content.Tiles
 {
     public class ShadowAnvil : ModTile
     {   

@@ -2,9 +2,9 @@
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
-using static Calamity_OverHaul_Patch.Content.Items.GameStageHelper;
+using static Light_and_Shadow.Content.Items.GameStageHelper;
 
-namespace Calamity_Overhaul_Patch.Content.Projectiles.Minions
+namespace Light_and_Shadow.Content.Projectiles.Minions
 {
     public class RainbowSummon : ModProjectile
     {
@@ -46,7 +46,7 @@ namespace Calamity_Overhaul_Patch.Content.Projectiles.Minions
                 return;
             }
 
-            bool holdingShadowRainbowWhip = player.HeldItem.ModItem is Calamity_OverHaul_Patch.Content.Items.ShadowRainbowWhip;
+            bool holdingShadowRainbowWhip = player.HeldItem.ModItem is Content.Items.ShadowRainbowWhip;
 
             if (!holdingShadowRainbowWhip)
             {

@@ -9,7 +9,7 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using System.Collections.Generic;
 
-namespace Calamity_OverHaul_Patch.Content.Tiles 
+namespace Light_and_Shadow.Content.Tiles 
 { 
 
     public class MysteriousStoneStele : ModTile

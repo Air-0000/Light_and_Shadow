@@ -6,11 +6,11 @@ using Terraria.GameContent.Events;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-using static Calamity_OverHaul_Patch.Content.Items.GameStageHelper;
-using Calamity_Overhaul_Patch.Content.Projectiles.Minions;
+using static Light_and_Shadow.Content.Items.GameStageHelper;
+using Light_and_Shadow.Content.Projectiles.Minions;
 using UtfUnknown.Core.Models.MultiByte.Korean;
 
-namespace Calamity_OverHaul_Patch.Content.Items
+namespace Light_and_Shadow.Content.Items
 {
     
     public class ShadowRainbowWhip : ModItem

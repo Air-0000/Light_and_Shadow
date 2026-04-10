@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria.ModLoader;
 
-namespace Calamity_OverHaul_Patch
+namespace Light_and_Shadow
 {
 	// Please read https://github.com/tModLoader/tModLoader/wiki/Basic-tModLoader-Modding-Guide#mod-skeleton-contents for more information about the various files in a mod.
-	public class Calamity_OverHaul_Patch : Mod
+	public class Light_and_Shadow : Mod
 	{
 
 	}

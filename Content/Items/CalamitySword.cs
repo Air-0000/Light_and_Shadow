@@ -2,14 +2,14 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace Calamity_OverHaul_Patch.Content.Items
+namespace Light_and_Shadow.Content.Items
 {
 	// This is a basic item template.
 	// Please see tModLoader's ExampleMod for every other example:
 	// https://github.com/tModLoader/tModLoader/tree/stable/ExampleMod
 	public class CalamitySword : ModItem
 	{
-		// The Display Name and Tooltip of this item can be edited in the 'Localization/en-US_Mods.Calamity_OverHaul_Patch.hjson' file.
+		// The Display Name and Tooltip of this item can be edited in the 'Localization/en-US_Mods.Light_and_Shadow.hjson' file.
 		public override void SetDefaults()
 		{
 			Item.damage = 50;
