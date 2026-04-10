@@ -25,7 +25,7 @@ Items: {
 		DisplayName: Shadow Anvil
 		Tooltip: ""
 	}
-
+	
 	MysteriousStoneStele: {
 		DisplayName: Mysterious Stone Stele
 		Tooltip: ""
@@ -35,6 +35,7 @@ Items: {
 DamageClasses.WhipDamage.DisplayName: Whip Damage
 
 Tiles: {
+	RainbowCrystal.MapEntry: Rainbow Crystal
 	MysteriousStoneStele.MapEntry: Mysterious Stone Stele
 	ShadowAnvil.MapEntry: Shadow Anvil
 }
