@@ -43,7 +43,12 @@ namespace Light_and_Shadow.Content.Tiles
             TileObjectData.newTile.LavaDeath = false;
             TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, TileObjectData.newTile.Width, 0); // 底部必须贴实心方块
             // TileObjectData.newTile.AnchorInvalidTiles = new int[] { 19, 427, 435, 436, 437, 438, 439 }; // 不能放平台上
-
+            
+            TileObjectData.newTile.AnchorBottom = new AnchorData(
+                AnchorType.SolidTile,        // 仅实心方块
+                2,                           // 底部 2 格都要实心
+                0
+            );
 
             // 注册结构到游戏
             TileObjectData.addTile(Type);
@@ -63,12 +68,25 @@ namespace Light_and_Shadow.Content.Tiles
         // 可选：自定义放置条件（比如只能放实心地面、不能重叠）
         public override bool CanPlace(int i, int j)
         {
-            for (int x = 0; x < 2; x++)
+            for (int x = 0; x < 1; x++)
             {
                 for (int y = 0; y < 3; y++)
                 {
                     Tile tile = Framing.GetTileSafely(i + x, j - y);
-                    if (tile.HasTile) return false;
+                    if (tile.HasTile || tile.IsHalfBlock || tile.TileType == TileID.Platforms) return false;
+                }
+            }
+            // 底部两个格子必须是实心方块（不能是平台、半砖）
+            for (int x = 0; x < 1; x++)
+            {
+                Tile below = Framing.GetTileSafely(i + x, j + 1);
+
+                // 必须有方块 + 不是平台 + 不是半砖
+                if (!below.HasTile
+                    || below.TileType == TileID.Platforms
+                    || below.IsHalfBlock)
+                {
+                    return false;
                 }
             }
             return true;

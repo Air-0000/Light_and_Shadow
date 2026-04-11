@@ -1,5 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Light_and_Shadow.Content.Items.GameStageHelper;
@@ -29,22 +32,18 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
         {
             Main.projFrames[Projectile.type] = 4; // 火焰小鬼是4帧动画
         }
-        public override void PostDraw(Color lightColor)
-        {
-            // 发光颜色：R, G, B, 透明度
-            Lighting.AddLight(Projectile.Center, 0.9f, 0.6f, 1.0f);
-        }
-
-
+        
         // 召唤物AI（最简单的悬浮跟随）
         public override void AI()
         {
+
             Player player = Main.player[Projectile.owner];
             if (!player.active || player.dead )
             {
                 Projectile.Kill();
                 return;
             }
+
 
             bool holdingShadowRainbowWhip = player.HeldItem.ModItem is Content.Items.ShadowRainbowWhip;
 
@@ -55,6 +54,23 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
             }
 
             Projectile.timeLeft = 2; // 保持不死
+
+            float lightRange = 1f;       // 光照强度（0~1，越高照亮范围越大、越亮）
+            float colorCycleSpeed = 0.5f;  // 光照颜色循环速度
+
+            // 1. 彩虹颜色循环（适配光照）
+            Color[] cycleColors = new Color[] { Color.Red, Color.Purple, Color.Blue, Color.Green, Color.Yellow, Color.Orange };
+            int colorIndex = (int)(Main.GlobalTimeWrappedHourly * colorCycleSpeed) % cycleColors.Length;
+            Color lightColor = cycleColors[colorIndex];
+
+            // 2. 设置Terraria原生光照（真正照亮周围地形）
+            // Lighting.AddLight(位置, 红通道亮度, 绿通道亮度, 蓝通道亮度)
+            Lighting.AddLight(
+                Projectile.Center,                          // 光照中心（召唤物位置）
+                lightColor.R / 255f * lightRange,           // 红色分量（0~1）
+                lightColor.G / 255f * lightRange,           // 绿色分量（0~1）
+                lightColor.B / 255f * lightRange            // 蓝色分量（0~1）
+            );
 
             GameStage stage = GetCurrentGameStage();
 
@@ -104,30 +120,84 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
         {
             NPC target = null;
             float maxDist = detectRange;
+            float ownerMoveRange = 10 * 16f;  // 召唤物移动范围限制：主人为圆心，10格（1格=16像素）
+            float pullBackSpeed = 3f;  // 拉回力度（越大拉回越快，推荐2~5）
 
-            // 索敌逻辑不变
+            int[] whipDebuffIDs = new int[]
+            {
+                BuffID.BlandWhipEnemyDebuff,    // 307
+                BuffID.SwordWhipNPCDebuff,      // 309
+                BuffID.ScytheWhipEnemyDebuff,   // 310
+                BuffID.FlameWhipEnemyDebuff,    // 313
+                BuffID.ThornWhipNPCDebuff,      // 315
+                BuffID.RainbowWhipNPCDebuff,    // 316
+                BuffID.MaceWhipNPCDebuff,       // 319
+                BuffID.BoneWhipNPCDebuff,       // 326
+                BuffID.CoolWhipNPCDebuff        // 340
+            };
+
             foreach (NPC npc in Main.ActiveNPCs)
             {
-                if (npc.CanBeChasedBy(this) && npc.active && !npc.friendly)
+                if (npc.active && !npc.friendly && npc.CanBeChasedBy(this))
                 {
-                    bool canSee = canWallDetect || Collision.CanHitLine(Projectile.Center, 1, 1, npc.Center, 1, 1);
+                    // 多人兼容关键：仅匹配当前召唤物主人的鞭子标记（player.whoAmI是当前主人ID）
+                    bool hasWhipDebuff = false;
 
-                    if (canSee)
+                    for (int i = 0; i < npc.buffType.Length; i++)
                     {
-                        float dist = Vector2.Distance(Projectile.Center, npc.Center);
-                        if (dist < maxDist)
+                        int buffType = npc.buffType[i];
+                        // 判断是否是鞭子标记Buff（BuffID.WhipTag）
+                        if (Array.IndexOf(whipDebuffIDs, npc.buffType[i]) != -1 && npc.buffTime[i] > 0)
                         {
-                            maxDist = dist;
-                            target = npc;
+                            hasWhipDebuff = true;
+                            break;
+                        }
+                    }
+
+                    bool canSee = canWallDetect || Collision.CanHitLine(Projectile.Center, 1, 1, npc.Center, 1, 1);  // 视野判定
+
+                    if (hasWhipDebuff && canSee)
+                    {
+                        target = npc;
+                        maxDist = Vector2.Distance(Projectile.Center, npc.Center);
+                        break; // 找到主人标记的敌人，直接设为优先目标
+                    }
+                }
+            }
+
+            if (target == null)
+            {
+                foreach (NPC npc in Main.ActiveNPCs)
+                {
+                    if (npc.CanBeChasedBy(this) && npc.active && !npc.friendly)
+                    {
+                        bool canSee = canWallDetect || Collision.CanHitLine(Projectile.Center, 1, 1, npc.Center, 1, 1);
+                        if (canSee)
+                        {
+                            float dist = Vector2.Distance(Projectile.Center, npc.Center);
+                            if (dist < maxDist)
+                            {
+                                maxDist = dist;
+                                target = npc;
+                            }
                         }
                     }
                 }
             }
 
+            float distToOwner = Vector2.Distance(Projectile.Center, player.Center);
+            // 如果超出10格范围，执行拉回逻辑
+            if (distToOwner > ownerMoveRange)
+            {
+                // 计算从召唤物指向主人的归一化方向（仅保留方向，去掉距离）
+                Vector2 pullBackDir = (player.Center - Projectile.Center).SafeNormalize(Vector2.Zero);
+                // 给召唤物施加拉回速度（叠加到原有速度上，保证优先拉回）
+                Projectile.velocity = pullBackDir * pullBackSpeed;
+            }
+
+            float smoothSpeed = 6.5f;
             // 共用平滑参数（越大越丝滑，越不顿挫）
             float inertia = 25f;
-            float smoothSpeed = 6.5f;
-
             if (target != null)
             {
                 // 攻击冷却
@@ -141,7 +211,7 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
                         Projectile.GetSource_FromAI(),
                         Projectile.Center,
                         vel,
-                        ProjectileID.CrystalPulse, 
+                        ProjectileID.CrystalPulse,
                         Projectile.damage,
                         Projectile.knockBack,
                         player.whoAmI
@@ -150,6 +220,7 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
                     if (canPenetrateWall)
                         Main.projectile[fireball].tileCollide = false;
                 }
+
 
                 // 【平滑远程站位】保持 180-320 距离，不贴脸、不顿挫
                 Vector2 toTarget = target.Center - Projectile.Center;

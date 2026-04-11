@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 using Terraria.WorldBuilding;
 using Terraria.GameContent.Biomes;
 
-namespace Light_and_Shadow.common.Systems
+namespace Light_and_Shadow.comm
 {
     public class LivingTreeSteleGenerator : ModSystem
     {
