@@ -19,7 +19,7 @@ namespace Light_and_Shadow.Content.Items
         public override void SetDefaults()
         {
             Item.CloneDefaults(ItemID.RainbowWhip);
-
+            Item.shoot = ModContent.ProjectileType<Content.Projectiles.Whip.ShadowRainbowWhip>();  // ✅ 应该发射你自己的
             Item.damage = 10;
             Item.useStyle = ItemUseStyleID.Swing;
         }
@@ -57,44 +57,44 @@ namespace Light_and_Shadow.Content.Items
         /// <summary>
         /// 当玩家手持这个物品时，持续调用
         /// </summary>
-        public override void HoldItem(Player player)
-        {
-            // 1. 多人游戏核心：只让“自己”运行，服务器/别人不运行
-            if (player.whoAmI != Main.myPlayer)
-                return;
+        // public override void HoldItem(Player player)
+        // {
+        //     // 1. 多人游戏核心：只让“自己”运行，服务器/别人不运行
+        //     if (player.whoAmI != Main.myPlayer)
+        //         return;
 
-            // 2. 计时器：每帧 +1，用来控制召唤频率
-            player.taxTimer++;
+        //     // 2. 计时器：每帧 +1，用来控制召唤频率
+        //     player.taxTimer++;
 
-            // 3. 每 30 帧（0.5 秒）执行一次
-            if (player.taxTimer >= 30)
-            {
-                player.taxTimer = 0; // 重置计时器
+        //     // 3. 每 30 帧（0.5 秒）执行一次
+        //     if (player.taxTimer >= 30)
+        //     {
+        //         player.taxTimer = 0; // 重置计时器
 
-                // 4. 检查：仆从位没满，才允许召唤
-                if (player.numMinions < player.maxMinions)
-                {
-                    int realDamage = WhipDamageCalculator.WhipDamage(
-                        stage: (int)GetCurrentGameStage(),
-                        DamageType: WhipDamageCalculator.SummonDamageTypeId,
-                        basicDamage: Item.damage);
-                    // 5. 创建召唤物（安全、标准、多人兼容）
-                    int proj = Projectile.NewProjectile(
-                        player.GetSource_ItemUse(Item),  // 来源：物品使用（正确不报错）
-                        player.Center,                   // 生成位置：玩家中心
-                        Vector2.Zero,                    // 移动速度：静止生成
-                        ModContent.ProjectileType<RainbowSummon>(), // 召唤物实体
-                        realDamage,                  // 伤害
-                        Item.knockBack,                 // 击退
-                        player.whoAmI                   // 归属玩家
-                    );
+        //         // 4. 检查：仆从位没满，才允许召唤
+        //         if (player.numMinions < player.maxMinions)
+        //         {
+        //             int realDamage = WhipDamageCalculator.WhipDamage(
+        //                 stage: (int)GetCurrentGameStage(),
+        //                 DamageType: WhipDamageCalculator.SummonDamageTypeId,
+        //                 basicDamage: Item.damage);
+        //             // 5. 创建召唤物（安全、标准、多人兼容）
+        //             int proj = Projectile.NewProjectile(
+        //                 player.GetSource_ItemUse(Item),  // 来源：物品使用（正确不报错）
+        //                 player.Center,                   // 生成位置：玩家中心
+        //                 Vector2.Zero,                    // 移动速度：静止生成
+        //                 ModContent.ProjectileType<RainbowSummon>(), // 召唤物实体
+        //                 realDamage,                  // 伤害
+        //                 Item.knockBack,                 // 击退
+        //                 player.whoAmI                   // 归属玩家
+        //             );
 
-                    // 6. 必须设置：标记为仆从（吃鞭子、正确继承属性）
-                    Main.projectile[proj].minion = true;
-                    Main.projectile[proj].originalDamage = realDamage;
-                }
-            }
-        }
+        //             // 6. 必须设置：标记为仆从（吃鞭子、正确继承属性）
+        //             Main.projectile[proj].minion = true;
+        //             Main.projectile[proj].originalDamage = realDamage;
+        //         }
+        //     }
+        // }
 
 
 

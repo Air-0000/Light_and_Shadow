@@ -1,8 +1,5 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using Terraria;
-using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -10,35 +7,62 @@ namespace Light_and_Shadow.Content.Projectiles.Whip
 {
     public class ShadowRainbowWhip : ModProjectile
     {
-        // 最大射程（原版彩虹鞭子 = 220）
-        private const float MAX_RANGE = 440f;
+        // 你要的射程（彻底生效）
+        public const float MAX_RANGE = 110f;
+
+        private Player Owner => Main.player[Projectile.owner];
 
         public override void SetDefaults()
         {
-            // 完全继承原版彩虹鞭子
             Projectile.CloneDefaults(ProjectileID.RainbowWhip);
+            AIType = 0; // 禁用原版AI
             Projectile.DamageType = DamageClass.SummonMeleeSpeed;
-
-            // 覆盖射程（核心）
-            AIType = ProjectileID.RainbowWhip;
         }
 
         public override void AI()
         {
-            Player player = Main.player[Projectile.owner];
+            if (!Owner.active || Owner.dead)
+            {
+                Projectile.Kill();
+                return;
+            }
 
-            // 强制限制鞭子最长长度，防止原版AI限制
-            if (Projectile.ai[1] > MAX_RANGE)
-                Projectile.ai[1] = MAX_RANGE;
+            Owner.heldProj = Projectile.whoAmI;
+            Owner.itemAnimation = 2;
+            Owner.itemTime = 2;
 
-            // 你原本的自定义内容（保留不动）
-            // float detectRange = 400f;
-            // int attackCooldown = 30;
-            // bool canWallDetect = true;
-            // bool canPenetrateWall = false;
+            Vector2 dir = (Main.MouseWorld - Owner.MountedCenter).SafeNormalize(Vector2.UnitX);
+            Projectile.velocity = dir;
+
+            // 伸长/收回（完全自己控制）
+            if (Projectile.ai[0] == 0)
+            {
+                Projectile.ai[1] += 25f;
+                if (Projectile.ai[1] >= MAX_RANGE)
+                    Projectile.ai[0] = 1;
+            }
+            else
+            {
+                Projectile.ai[1] -= 30f;
+                if (Projectile.ai[1] <= 0)
+                    Projectile.Kill();
+            }
+
+            // 同步位置
+            Projectile.Center = Owner.MountedCenter + dir * Projectile.ai[1];
         }
 
-        // 让原版自动绘制，不自己写
-        public override bool PreDraw(ref Color lightColor) => true;
+        // 碰撞（射程生效）
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            float _ = 0f;
+            return Collision.CheckAABBvLineCollision(
+                targetHitbox.TopLeft(), targetHitbox.Size(),
+                Owner.MountedCenter,
+                Owner.MountedCenter + Projectile.velocity * Projectile.ai[1],
+                22f, ref _);
+        }
+
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowWhip;
     }
 }
