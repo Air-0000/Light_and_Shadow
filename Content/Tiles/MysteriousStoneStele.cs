@@ -62,7 +62,7 @@ namespace Light_and_Shadow.Content.Tiles
         public override IEnumerable<Item> GetItemDrops(int i, int j)
         {
             // 直接返回要掉落的物品，支持多物品、概率掉落
-            yield return new Item(ModContent.ItemType<Items.Stuffs.MysteriousStone>());
+            yield return new Item(ModContent.ItemType<Items.Stuffs.MysteriousStonePowder>());
         }
 
         // 可选：自定义放置条件（比如只能放实心地面、不能重叠）
@@ -90,6 +90,15 @@ namespace Light_and_Shadow.Content.Tiles
                 }
             }
             return true;
+        }
+
+        // 发光效果
+        public override void NearbyEffects(int i, int j, bool closer)
+        {
+            if (closer && Main.rand.NextBool(10))
+            {
+                Dust.NewDust(new Vector2(i * 16, j * 16), 16, 16, DustID.MagicMirror, Alpha: 150);
+            }
         }
 
         // 放置后调用（官方方法）

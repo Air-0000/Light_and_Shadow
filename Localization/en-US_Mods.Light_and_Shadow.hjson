@@ -45,6 +45,11 @@ Items: {
 		DisplayName: Light Crystal
 		Tooltip: ""
 	}
+
+	MysteriousStonePowder: {
+		DisplayName: Mysterious Stone Powder
+		Tooltip: ""
+	}
 }
 
 DamageClasses.WhipDamage.DisplayName: Whip Damage

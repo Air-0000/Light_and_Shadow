@@ -23,7 +23,7 @@ namespace Light_and_Shadow.Content.Items.Blocks
         {
             CreateRecipe()
                 .AddTile(TileID.WorkBenches)
-                .AddIngredient(ModContent.ItemType<MysteriousStone>(), 1)
+                .AddIngredient(ModContent.ItemType<MysteriousStonePowder>(), 1)
                 .AddRecipeGroup(RecipeGroupID.IronBar, 10)
                 .Register();
         }

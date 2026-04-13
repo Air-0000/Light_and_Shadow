@@ -40,7 +40,6 @@ namespace Light_and_Shadow.Content.Tiles
 
 
         }
-        //11111
         // 发光效果
         public override void NearbyEffects(int i, int j, bool closer)
         {
