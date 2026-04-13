@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<!-- Import tModLoader mod properties -->
 	<Import Project="..\tModLoader.targets" />
@@ -7,6 +7,12 @@
 	<PropertyGroup>
 		
 	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Structure\TreeHouse.qotstruct" />
+	</ItemGroup>
+	<ItemGroup>
+	  <EmbeddedResource Include="Structure\TreeHouse.qotstruct" />
+	</ItemGroup>
 
 	<!-- References -->
 

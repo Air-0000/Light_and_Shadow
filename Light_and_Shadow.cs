@@ -11,5 +11,5 @@ namespace Light_and_Shadow
 	public class Light_and_Shadow : Mod
 	{
 
-	}
+    }
 }
