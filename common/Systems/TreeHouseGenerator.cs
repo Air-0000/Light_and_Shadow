@@ -22,7 +22,7 @@ namespace Light_and_Shadow.Common.Systems
 
         private QoLStructure structure;
         private bool isDataLoaded = false;
-
+        private Dictionary<int, int> dirtCountPerY = new Dictionary<int, int>();
         public override void ModifyWorldGenTasks(List<GenPass> tasks, ref double totalWeight)
         {
             int cleanupIndex = tasks.FindIndex(t => t.Name == "Final Cleanup");
@@ -48,7 +48,22 @@ namespace Light_and_Shadow.Common.Systems
                         ? StructureSpawnPoints[0]
                         : new Point(Main.maxTilesX / 2, 100);
 
-                    PlaceStructure(spawnPoint.X, spawnPoint.Y);
+                    // 【自动适配地表】根据X动态获取地面Y
+                    int surfaceY = GetSurfaceGroundY(spawnPoint.X) - 82;
+
+
+                    int groundY = GetSurfaceGroundY(spawnPoint.X);
+                    if (groundY != (int)Main.worldSurface + 200)
+                    {
+                        Mod.Logger.Info($"✅ 找到纯土块地表，树屋生成于 Y:{groundY}");
+                        PlaceStructure(spawnPoint.X, surfaceY);
+                    }
+                    else
+                    {
+                        Mod.Logger.Info($"❌ 无纯土块地面 或 进入洞穴层，跳过树屋生成");
+                    }
+
+
                     StructureSpawnPoints.Clear();
                 }));
             }
@@ -61,7 +76,7 @@ namespace Light_and_Shadow.Common.Systems
             try
             {
                 string basePath = GetTerrariaPath();
-                string structureFilePath = Path.Combine(basePath, "tModLoader", "ModSources", Mod.Name, "Structure", "TreeHouse1.qotstruct");
+                string structureFilePath = Path.Combine(basePath, "tModLoader", "ModSources", Mod.Name, "Structure", "TreeHouse.qotstruct");
                 string fullPath = Path.GetFullPath(structureFilePath);
 
                 Mod.Logger.Info($"📂 加载路径: {fullPath}");
@@ -89,6 +104,28 @@ namespace Light_and_Shadow.Common.Systems
                 Mod.Logger.Error($"❌ 加载失败: {e.Message}");
                 Mod.Logger.Error(e.StackTrace);
             }
+        }
+
+
+
+        /// <summary>
+        /// 获取指定X坐标的地表地面Y（向下找第一个实心方块顶部）
+        /// </summary>
+        private int GetSurfaceGroundY(int x)
+        {
+            int caveLayerTop = (int)Main.rockLayer;
+            int startY = (int)(Main.worldSurface - 200);//地表上方200格开始
+            for (int y = startY; y < caveLayerTop-82; y++)
+            {
+                Tile currentTile = Main.tile[x, y];
+
+                if ((currentTile.TileType == TileID.Dirt || currentTile.TileType == TileID.Grass)) // 只接受纯土块地表
+                {
+                     return y;
+                }
+            }
+            // 兜底：世界地表高度
+            return (int)Main.worldSurface + 200;
         }
 
         private void PlaceStructure(int centerX, int groundY)
