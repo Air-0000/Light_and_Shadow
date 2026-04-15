@@ -13,13 +13,12 @@ using Terraria.Enums;
 using ReLogic.OS;
 using Light_and_Shadow.Common;
 using Microsoft.Xna.Framework;
+using Mono.CompilerServices.SymbolWriter;
 
 namespace Light_and_Shadow.Common.Systems
 {
     public class TreeHouseGenerator : ModSystem
     {
-        public static List<Point> StructureSpawnPoints = new List<Point>();
-
         private QoLStructure structure;
         private bool isDataLoaded = false;
         private Dictionary<int, int> dirtCountPerY = new Dictionary<int, int>();
@@ -44,30 +43,62 @@ namespace Light_and_Shadow.Common.Systems
                         return;
                     }
 
-                    Point spawnPoint = StructureSpawnPoints.Count > 0
-                        ? StructureSpawnPoints[0]
-                        : new Point(Main.maxTilesX / 2, 100);
-
-                    // 【自动适配地表】根据X动态获取地面Y
-                    int surfaceY = GetSurfaceGroundY(spawnPoint.X) - 80 ;
-
-
-                    int groundY = GetSurfaceGroundY(spawnPoint.X);
-
-
-                    if (groundY != 200)
-                    {
-                        Mod.Logger.Info($"✅ 找到纯土块地表，树屋生成于 Y:{groundY}");
-                        PlaceStructure(spawnPoint.X, surfaceY);
-                    }
-                    else
-                    {
-                        Mod.Logger.Info($"❌ 无纯土块地面 或 进入洞穴层，跳过树屋生成");
-                    }
-
-
-                    StructureSpawnPoints.Clear();
+                    GetPlaceTreeHouse();
                 }));
+            }
+        }
+        public int GetHouseCount = 0;
+
+        public void GetPlaceTreeHouse()
+        {
+            while (true)
+            {
+                List<int> validXPositions = new List<int>();
+                Random rand = new Random((int)DateTime.Now.Ticks);
+
+                int X = Main.maxTilesX / 2 + (rand.Next(-400, 400));
+
+                // 【自动适配地表】根据X动态获取地面Y
+                GetHouseCount++;
+                Mod.Logger.Info($"🔍 检测地表适合度{GetHouseCount}");
+                int groundY = GetSurfaceGroundY(X);
+                if (groundY == -1)
+                {
+                    Mod.Logger.Warn($"⚠️ X={X} 未找到适合的地表，重新选择位置");
+                    GetHouseCount = 0;
+                    GetPlaceTreeHouse();
+                    return;
+                }
+
+                validXPositions.Add(groundY);
+                for (int i = -25; i <= 25; i += 50)
+                {
+                    GetHouseCount++;
+                    Mod.Logger.Info($"🔍 检测地表适合度{GetHouseCount}");
+                    int index = GetSurfaceGroundY(X + i);
+                    if (index == -1)
+                    {
+                        Mod.Logger.Warn($"⚠️ X={X} 未找到适合的地表，重新选择位置");
+                        GetHouseCount = 0;
+                        GetPlaceTreeHouse();
+                        return;
+                    }
+                    validXPositions.Add(index);
+                }
+
+                if (Math.Abs(validXPositions[0] - validXPositions[1]) < 5 &&
+                    Math.Abs(validXPositions[0] - validXPositions[2]) < 5)
+                {
+                    GetHouseCount = 0;
+                    PlaceStructure(X, groundY - 80);
+                    return;
+                }
+
+                Mod.Logger.Warn($"⚠️ X={X} 未找到适合的地表，重新选择位置");
+                GetHouseCount = 0;
+                GetPlaceTreeHouse();
+                return;
+
             }
         }
 
@@ -116,8 +147,8 @@ namespace Light_and_Shadow.Common.Systems
         private int GetSurfaceGroundY(int x)
         {
             int caveLayerTop = (int)Main.rockLayer;
-            int startY = 82 ;
-            for (int y = startY; y < caveLayerTop-82; y++)
+            int startY = 82;
+            for (int y = startY; y < caveLayerTop - 82; y++)
             {
 
                 if (!Main.tile[x, y].HasTile)
@@ -132,11 +163,13 @@ namespace Light_and_Shadow.Common.Systems
                     type == TileID.Sand ||
                     type == TileID.SnowBlock)
                 {
+                    Mod.Logger.Info($"🌍 找到地表: ({x}, {y})");
                     return y;
                 }
 
             }
-            return 200;
+            Mod.Logger.Warn($"⚠️ 未找到地表，使用默认值: ({x}, -1)");
+            return -1;
         }
 
         private void PlaceStructure(int centerX, int groundY)
@@ -282,91 +315,91 @@ namespace Light_and_Shadow.Common.Systems
                     int swappedX = y;
                     int swappedY = x;
 
-                int relX = swappedX - structure.OriginX;
-                int relY = swappedY - structure.OriginY;
+                    int relX = swappedX - structure.OriginX;
+                    int relY = swappedY - structure.OriginY;
 
-                int wx = centerX + relX;
-                int wy = groundY + relY;
+                    int wx = centerX + relX;
+                    int wy = groundY + relY;
 
-                int tileType = structure.ParseTileType(def);
+                    int tileType = structure.ParseTileType(def);
 
-                if (tileType < 0 || tileType >= TileLoader.TileCount)
-                    continue;
+                    if (tileType < 0 || tileType >= TileLoader.TileCount)
+                        continue;
 
-                if (wx < 0 || wx >= Main.maxTilesX || wy < 0 || wy >= Main.maxTilesY)
-                    continue;
+                    if (wx < 0 || wx >= Main.maxTilesX || wy < 0 || wy >= Main.maxTilesY)
+                        continue;
 
-                TileObjectData tileObjectData = null;
-                bool foundData = false;
+                    TileObjectData tileObjectData = null;
+                    bool foundData = false;
 
-                // 尝试多个可能的style值
-                for (int tryStyle = 0; tryStyle < 16; tryStyle++)
-                {
-                    try
+                    // 尝试多个可能的style值
+                    for (int tryStyle = 0; tryStyle < 16; tryStyle++)
                     {
-                        var data = TileObjectData.GetTileData(tileType, tryStyle, 0);
-                        if (data != null)
+                        try
                         {
-                            tileObjectData = data;
-                            foundData = true;
-                            break;
+                            var data = TileObjectData.GetTileData(tileType, tryStyle, 0);
+                            if (data != null)
+                            {
+                                tileObjectData = data;
+                                foundData = true;
+                                break;
+                            }
+                        }
+                        catch
+                        {
+                            continue;
                         }
                     }
-                    catch
+
+                    if (!foundData || tileObjectData == null)
                     {
+                        skippedGetTileData++;
                         continue;
                     }
-                }
 
-                if (!foundData || tileObjectData == null)
-                {
-                    skippedGetTileData++;
-                    continue;
-                }
+                    int subX = (def.TileFrameX / tileObjectData.CoordinateFullWidth) * tileObjectData.CoordinateFullWidth;
+                    int subY = (def.TileFrameY / tileObjectData.CoordinateFullHeight) * tileObjectData.CoordinateFullHeight;
 
-                int subX = (def.TileFrameX / tileObjectData.CoordinateFullWidth) * tileObjectData.CoordinateFullWidth;
-                int subY = (def.TileFrameY / tileObjectData.CoordinateFullHeight) * tileObjectData.CoordinateFullHeight;
+                    Tile tempTile = new Tile();
+                    tempTile.TileType = (ushort)tileType;
+                    tempTile.TileFrameX = (short)subX;
+                    tempTile.TileFrameY = (short)subY;
 
-                Tile tempTile = new Tile();
-                tempTile.TileType = (ushort)tileType;
-                tempTile.TileFrameX = (short)subX;
-                tempTile.TileFrameY = (short)subY;
+                    int style = TileFrameToPlaceStyle(tempTile);
+                    if (style < 0)
+                    {
+                        skippedStyle++;
+                        continue;
+                    }
 
-                int style = TileFrameToPlaceStyle(tempTile);
-                if (style < 0)
-                {
-                    skippedStyle++;
-                    continue;
-                }
+                    subX = def.TileFrameX % tileObjectData.CoordinateFullWidth;
+                    subY = def.TileFrameY % tileObjectData.CoordinateFullHeight;
 
-                subX = def.TileFrameX % tileObjectData.CoordinateFullWidth;
-                subY = def.TileFrameY % tileObjectData.CoordinateFullHeight;
+                    int direction = tileObjectData.Direction switch
+                    {
+                        TileObjectDirection.PlaceLeft => -1,
+                        TileObjectDirection.PlaceRight => 1,
+                        _ => 0
+                    };
 
-                int direction = tileObjectData.Direction switch
-                {
-                    TileObjectDirection.PlaceLeft => -1,
-                    TileObjectDirection.PlaceRight => 1,
-                    _ => 0
-                };
-
-                if (TileID.Sets.BasicChest[tileType])
-                {
-                    PlaceChestNoSync(wx, wy, (ushort)tileType, false, style);
-                    placedMultiTile++;
-                    continue;
-                }
-
-                if (TileID.Sets.BasicDresser[tileType])
-                {
-                    if (TileHelper.Place3x2NoSyncDresser(wx, wy, (ushort)tileType, style))
+                    if (TileID.Sets.BasicChest[tileType])
+                    {
+                        PlaceChestNoSync(wx, wy, (ushort)tileType, false, style);
                         placedMultiTile++;
-                    continue;
-                }
+                        continue;
+                    }
 
-                if (TryPlaceMultiTile(wx, wy, tileType, style, direction))
-                {
-                    placedMultiTile++;
-                }
+                    if (TileID.Sets.BasicDresser[tileType])
+                    {
+                        if (TileHelper.Place3x2NoSyncDresser(wx, wy, (ushort)tileType, style))
+                            placedMultiTile++;
+                        continue;
+                    }
+
+                    if (TryPlaceMultiTile(wx, wy, tileType, style, direction))
+                    {
+                        placedMultiTile++;
+                    }
                 }
                 catch (Exception ex)
                 {
