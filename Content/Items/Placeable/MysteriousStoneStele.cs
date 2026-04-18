@@ -3,7 +3,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 
-namespace Light_and_Shadow.Content.Items.Blocks
+namespace Light_and_Shadow.Content.Items.Placeable
 {
     public class MysteriousStoneStele : ModItem
     {
@@ -16,7 +16,7 @@ namespace Light_and_Shadow.Content.Items.Blocks
             Item.rare = ItemRarityID.Blue;
 
             // 放置核心：指向你的 Tile
-            Item.DefaultToPlaceableTile(tileIDToPlace: ModContent.TileType<Content.Tiles.MysteriousStoneStele>());
+            Item.DefaultToPlaceableTile(tileIDToPlace: ModContent.TileType<Tiles.Placeable.MysteriousStoneSteleTile>());
 
             Item.placeStyle = 0;
 

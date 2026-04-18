@@ -49,7 +49,7 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
                 return;
             }
 
-            bool holdingShadowRainbowWhip = player.HeldItem.ModItem is Content.Items.Weapons.ShadowRainbowWhip;
+            bool holdingShadowRainbowWhip = player.HeldItem.ModItem is Items.Stuffs.Weapons.ShadowRainbowWhip;
 
             if (!holdingShadowRainbowWhip)
             {
@@ -105,6 +105,14 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
 
         private void CrystalAI(Player player, float detectRange, int attackCooldown, bool canWallDetect, bool canPenetrateWall)
         {
+            // 给每只召唤物分配一个固定偏移角度
+            float rotateOffset = Projectile.identity % 2 == 0 ? 45f : -45f;
+            float radius = 60f;
+
+            // 计算偏移位置
+            Vector2 idleOffset = new Vector2(1, 0).RotatedBy(MathHelper.ToRadians(rotateOffset)) * radius;
+            Vector2 targetPos = player.Center + idleOffset;
+
             NPC target = null;
             float maxDist = detectRange;
             float ownerMoveRange = 10 * 16f;  // 召唤物移动范围限制：主人为圆心，10格（1格=16像素）
@@ -230,28 +238,53 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
                     Projectile.velocity *= 0.96f;
                 }
             }
+
             else
             {
-                // 【无目标时平滑跟随玩家】
-                Vector2 toPlayer = player.Center - Projectile.Center;
-                float playerDist = toPlayer.Length();
+                // 无目标时：均匀环绕玩家，彻底杜绝重合
+                int ownIndex = 0;
+                int totalMinions = 0;
 
-                // 离玩家超过 100 才缓慢回归，不会猛冲
-                if (playerDist > 100f)
+                // 先统计总数，并确定自己是第几个
+                foreach (Projectile proj in Main.ActiveProjectiles)
                 {
-                    toPlayer.Normalize();
+                    if (proj.active && proj.owner == player.whoAmI && proj.type == Projectile.type)
+                    {
+                        // 找到自己之前的仆从，计数+1
+                        if (proj.whoAmI < Projectile.whoAmI)
+                            ownIndex++;
 
-                    // 速度 = 基础速度 + 距离比例加成（正比）
-                    float speedMulti = MathHelper.Clamp(playerDist / 150f, 1f, 2.8f);
-                    float finalSpeed = smoothSpeed * 0.9f * speedMulti;
+                        totalMinions++;
+                    }
+                }
 
-                    Vector2 wishVel = toPlayer * finalSpeed;
-                    Projectile.velocity = (Projectile.velocity * (inertia - 1.5f) + wishVel) / inertia;
+                // 确保不会除0
+                totalMinions = Math.Max(1, totalMinions);
+
+                // 按数量均分圆周
+                float anglePer = MathHelper.TwoPi / totalMinions;
+                float baseAngle = ownIndex * anglePer;
+
+                // 缓慢旋转
+                float angle = baseAngle + (float)Main.time * 0.015f;
+
+                // 环绕半径
+                float circleRadius = 120f;
+                Vector2 desiredPos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * circleRadius;
+
+                // 丝滑移动
+                Vector2 diff = desiredPos - Projectile.Center;
+                float dist = diff.Length();
+
+                if (dist > 8f)
+                {
+                    float speed = MathHelper.Lerp(0f, 10f, dist / 80f);
+                    diff.Normalize();
+                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, diff * speed, 0.15f);
                 }
                 else
                 {
-                    // 近距离轻柔悬浮，几乎不顿
-                    Projectile.velocity *= 0.94f;
+                    Projectile.velocity *= 0.92f;
                 }
             }
 

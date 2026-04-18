@@ -1,5 +1,13 @@
 # This file will automatically update with entries for new content after a build and reload.
 
+
+Systems: {
+	WorldGen: {
+		LightCrystalOrePassMessage: Generating Light Crystal Ores
+		ShadowCrystalOrePassMessage: Generating Shadow Crystal Ores
+	}
+}
+
 Items: {
 	CalamitySword: {
 		DisplayName: Calamity Sword
@@ -50,6 +58,11 @@ Items: {
 		DisplayName: Mysterious Stone Powder
 		Tooltip: ""
 	}
+
+	TestMinion: {
+		DisplayName: Test Minion
+		Tooltip: ""
+	}
 }
 
 DamageClasses.WhipDamage.DisplayName: Whip Damage
@@ -61,6 +74,8 @@ Tiles: {
 	RainbowCrystalTile.MapEntry: Rainbow Crystal Tile
 	LightCrystalTile.MapEntry: Light Crystal Tile
 	ShadowCrystalTile.MapEntry: Shadow Crystal Tile
+	MysteriousStoneSteleTile.MapEntry: Mysterious Stone Stele Tile
+	ShadowAnvilTile.MapEntry: Shadow Anvil Tile
 }
 
 Projectiles: {
@@ -69,3 +84,5 @@ Projectiles: {
 	ShadowRainbowWhipProjectile.DisplayName: Shadow Rainbow Whip Projectile
 	ShadowRainbowWhipProj.DisplayName: Shadow Rainbow Whip Proj
 }
+
+WorldGen.LightCrystalOrePassMessage: Mods.Light_and_Shadow.WorldGen.LightCrystalOrePassMessage

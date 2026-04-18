@@ -70,6 +70,14 @@ namespace Light_and_Shadow.Common.Systems
                     return;
                 }
 
+                if (!IsValidForestLocation(X))
+                {
+                    Mod.Logger.Warn($"⚠️ X={X} 不在纯净森林，重新选择位置");
+                    GetHouseCount = 0;
+                    GetPlaceTreeHouse();
+                    return;
+                }
+
                 validXPositions.Add(groundY);
                 for (int i = -25; i <= 25; i += 50)
                 {
@@ -98,9 +106,43 @@ namespace Light_and_Shadow.Common.Systems
                 GetHouseCount = 0;
                 GetPlaceTreeHouse();
                 return;
-
             }
         }
+
+        private bool IsValidForestLocation(int x)
+        {
+            // 1. 排除世界中心左右200格
+            int centerX = Main.maxTilesX / 2;
+            if (Math.Abs(x - centerX) < 200)
+                return false;
+
+            // 2. 找到地面
+            int y = GetSurfaceGroundY(x);
+            if (y == -1)
+                return false;
+
+            Tile tile = Framing.GetTileSafely(x, y);
+
+            // 3. 必须是普通草地
+            if (tile.TileType != TileID.Grass)
+                return false;
+
+            // 4. 排除腐化/血腥/神圣/沙漠/雪地/丛林
+            ushort type = tile.TileType;
+            if (type == TileID.CorruptGrass ||
+                type == TileID.CrimsonGrass ||
+                type == TileID.HallowedGrass ||
+                type == TileID.Sand ||
+                type == TileID.SnowBlock ||
+                type == TileID.JungleGrass ||
+                type == TileID.Mud)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
 
         private void LoadStructureData()
         {

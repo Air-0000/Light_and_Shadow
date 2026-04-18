@@ -243,7 +243,7 @@ namespace Light_and_Shadow.Common.Systems
                 }
             }
 
-            WorldGen.PlaceObject(centerX, platformY, ModContent.TileType<Content.Tiles.MysteriousStoneStele>(), true);
+            WorldGen.PlaceObject(centerX, platformY, ModContent.TileType<Content.Tiles.Placeable.MysteriousStoneSteleTile>(), true);
         }
     }
 }

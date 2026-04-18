@@ -7,7 +7,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
-namespace Light_and_Shadow.Content.Tiles
+namespace Light_and_Shadow.Content.Tiles.Placeable
 {
     public class RainbowCrystalTile : ModTile
     {
@@ -45,7 +45,7 @@ namespace Light_and_Shadow.Content.Tiles
         public override IEnumerable<Item> GetItemDrops(int i, int j)
         {
             // 直接返回要掉落的物品，支持多物品、概率掉落
-            yield return new Item(ModContent.ItemType<Items.Stuffs.RainbowCrystal>());
+            yield return new Item(ModContent.ItemType<Items.Placeable.RainbowCrystal>());
         }
     }
 }

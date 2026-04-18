@@ -9,10 +9,10 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using System.Collections.Generic;
 
-namespace Light_and_Shadow.Content.Tiles 
+namespace Light_and_Shadow.Content.Tiles.Placeable
 { 
 
-    public class MysteriousStoneStele : ModTile
+    public class MysteriousStoneSteleTile : ModTile
     {
         public override void SetStaticDefaults()
         {
