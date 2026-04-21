@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
@@ -19,7 +20,7 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
 
             Projectile.friendly = true;
             Projectile.minion = true;          // 标记为仆从
-            Projectile.minionSlots = 1;         // 占用1个仆从位
+            Projectile.DamageType = DamageClass.Summon;
             Projectile.penetrate = -1;          // 无限穿透
             Projectile.ignoreWater = true;
             Projectile.tileCollide = true;
@@ -48,7 +49,6 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
                 Projectile.Kill();
                 return;
             }
-
             bool holdingShadowRainbowWhip = player.HeldItem.ModItem is Items.Stuffs.Weapons.ShadowRainbowWhip;
 
             if (!holdingShadowRainbowWhip)
@@ -100,22 +100,14 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
             // 应用穿墙设置
             CrystalAI(player, detectRange, attackCooldown, canWallDetect, canPenetrateWall);
 
-            Projectile.timeLeft = 2;
         }
 
         private void CrystalAI(Player player, float detectRange, int attackCooldown, bool canWallDetect, bool canPenetrateWall)
         {
-            // 给每只召唤物分配一个固定偏移角度
-            float rotateOffset = Projectile.identity % 2 == 0 ? 45f : -45f;
-            float radius = 60f;
-
-            // 计算偏移位置
-            Vector2 idleOffset = new Vector2(1, 0).RotatedBy(MathHelper.ToRadians(rotateOffset)) * radius;
-            Vector2 targetPos = player.Center + idleOffset;
 
             NPC target = null;
             float maxDist = detectRange;
-            float ownerMoveRange = 10 * 16f;  // 召唤物移动范围限制：主人为圆心，10格（1格=16像素）
+            float ownerMoveRange = 20 * 16f;  // 召唤物移动范围限制：主人为圆心，20格（1格=16像素）
             float pullBackSpeed = 3f;  // 拉回力度（越大拉回越快，推荐2~5）
 
             int[] whipDebuffIDs = new int[]
@@ -140,7 +132,6 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
 
                     for (int i = 0; i < npc.buffType.Length; i++)
                     {
-                        int buffType = npc.buffType[i];
                         // 判断是否是鞭子标记Buff（BuffID.WhipTag）
                         if (Array.IndexOf(whipDebuffIDs, npc.buffType[i]) != -1 && npc.buffTime[i] > 0)
                         {
@@ -239,56 +230,46 @@ namespace Light_and_Shadow.Content.Projectiles.Minions
                 }
             }
 
+           
             else
             {
-                // 无目标时：均匀环绕玩家，彻底杜绝重合
-                int ownIndex = 0;
+                // 基础环绕参数
                 int totalMinions = 0;
+                int myIndex = 0;
 
-                // 先统计总数，并确定自己是第几个
+                // 统计自己是第几个召唤物
                 foreach (Projectile proj in Main.ActiveProjectiles)
                 {
-                    if (proj.active && proj.owner == player.whoAmI && proj.type == Projectile.type)
+                    if (proj.active && proj.owner == Projectile.owner && proj.type == Projectile.type)
                     {
-                        // 找到自己之前的仆从，计数+1
-                        if (proj.whoAmI < Projectile.whoAmI)
-                            ownIndex++;
+                        if (proj.identity < Projectile.identity)
+                            myIndex++;
 
                         totalMinions++;
                     }
                 }
 
-                // 确保不会除0
-                totalMinions = Math.Max(1, totalMinions);
+                totalMinions = Math.Max(totalMinions, 1);
 
-                // 按数量均分圆周
-                float anglePer = MathHelper.TwoPi / totalMinions;
-                float baseAngle = ownIndex * anglePer;
+                // 均匀分配角度 + 持续旋转
+                float rotateSpeed = 0.015f;
+                float angle = MathHelper.TwoPi * myIndex / totalMinions + Main.GameUpdateCount * rotateSpeed;
 
-                // 缓慢旋转
-                float angle = baseAngle + (float)Main.time * 0.015f;
+                // 绕圈半径
+                float circleradius = 120f;
+                Vector2 desiredPos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * circleradius;
 
-                // 环绕半径
-                float circleRadius = 120f;
-                Vector2 desiredPos = player.Center + new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * circleRadius;
+                // 强制移动，保证一定转得起来
+                Vector2 dir = desiredPos - Projectile.Center;
+                float dist = dir.Length();
+                if (dir != Vector2.Zero)
+                    dir.Normalize();
 
-                // 丝滑移动
-                Vector2 diff = desiredPos - Projectile.Center;
-                float dist = diff.Length();
+                Projectile.velocity = dir ;
 
-                if (dist > 8f)
-                {
-                    float speed = MathHelper.Lerp(0f, 10f, dist / 80f);
-                    diff.Normalize();
-                    Projectile.velocity = Vector2.Lerp(Projectile.velocity, diff * speed, 0.15f);
-                }
-                else
-                {
-                    Projectile.velocity *= 0.92f;
-                }
+                Projectile.spriteDirection = Math.Sign(Projectile.velocity.X);
             }
-
-            Projectile.spriteDirection = System.Math.Sign(Projectile.velocity.X);
+               
 
             // 动画
             Projectile.frameCounter++;

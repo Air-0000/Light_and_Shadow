@@ -51,17 +51,6 @@ namespace Light_and_Shadow.Content.Items.Stuffs.Consumables
 
         // 允许右键使用
         public override bool AltFunctionUse(Player player) => true;
-
-        public override void AddRecipes()
-        {
-            // 你可以自己改配方
-            CreateRecipe()
-                .AddIngredient(ItemID.Diamond, 5)
-                .AddIngredient(ItemID.SoulofLight, 3)
-                .AddIngredient(ItemID.SoulofNight, 3)
-                .AddTile(TileID.MythrilAnvil)
-                .Register();
-        }
     }
 
     // ==============================================
